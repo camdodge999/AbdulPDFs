@@ -8,11 +8,24 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain_community.chat_models import ChatOpenAI  
 from htmlTemplates import css, bot_template, user_template
+from langchain_together import TogetherEmbeddings
+from langchain_groq import ChatGroq
+
+load_dotenv()
 
 #================================================================================================
 # Functions
 #================================================================================================
 # get pdf text is to extract text from pdf files
+
+llm1 = ChatGroq(
+    model="llama-3.3-70b-versatile",
+    temperature=0,
+)
+
+embeddings = TogetherEmbeddings(
+    model="togethercomputer/m2-bert-80M-8k-retrieval",
+)
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -36,7 +49,7 @@ def get_text_chunks(text):
 # get_vectorstore is to create embeddings using OpenAIEmbeddings
 # and create vectorstore using FAISS
 def get_vectorstore(text_chunks):
-    embeddings = OpenAIEmbeddings()
+    # embeddings = OpenAIEmbeddings()
     # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
     vectorstore = FAISS.from_texts(texts= text_chunks, embedding = embeddings)
     return vectorstore
@@ -44,7 +57,8 @@ def get_vectorstore(text_chunks):
 # get_conversation_chain is to create a conversation chain
 # using ChatOpenAI and ConversationBufferMemory
 def get_conversation_chain(vectorstore):
-    llm = ChatOpenAI()
+    # llm = ChatOpenAI()
+    llm = llm1
     memory = ConversationBufferMemory(memory_key= 'chat_history', return_messages= True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm = llm,
